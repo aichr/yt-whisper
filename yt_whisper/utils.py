@@ -87,12 +87,6 @@ def slugify(title):
     return "".join(c if c.isalnum() else "_" for c in title).rstrip("_")
 
 
-def youtube_dl_log(d):
-    if d['status'] == 'downloading':
-        print("Downloading video: " +
-              str(round(float(d['downloaded_bytes'])/float(d['total_bytes'])*100, 1))+"%")
-
-
 def convert_video_to_audio_ffmpeg(video_file, output_ext="mp3"):
     """Converts video to audio directly using `ffmpeg` command
     with the help of subprocess module"""
