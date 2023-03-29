@@ -1,10 +1,12 @@
 import os
 import whisper
+import time
 from whisper.tokenizer import LANGUAGES, TO_LANGUAGE_CODE
 import argparse
 import warnings
 import yt_dlp
-from .utils import str2bool, slugify, write_vtt, write_srt, convert_video_to_audio_ffmpeg
+from .utils import str2bool, slugify, write_vtt, write_srt, \
+    write_txt, convert_video_to_audio_ffmpeg
 import tempfile
 
 
@@ -12,12 +14,12 @@ def main():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("video", nargs="+", type=str,
-                        help="video URLs to transcribe")
+                        help="video URLs or a local path to transcribe")
     parser.add_argument("--model", default="small",
                         choices=whisper.available_models(),
                         help="name of the Whisper model to use")
     parser.add_argument(
-        "--format", default="srt", choices=["vtt", "srt"],
+        "--format", default="srt", choices=["vtt", "srt", "txt"],
         help="the subtitle format to output")
     parser.add_argument("--output_dir", "-o", type=str,
                         default=".", help="directory to save the outputs")
@@ -70,6 +72,12 @@ def main():
                 write_srt(result["segments"], file=srt,
                           line_length=break_lines)
             print("Saved SRT to", os.path.abspath(srt_path))
+        elif subtitles_format == "txt":
+            txt_path = os.path.join(output_dir, f"{slugify(title)}.txt")
+            with open(txt_path, 'w', encoding="utf-8") as txt:
+                write_txt(result["segments"], file=txt,
+                          line_length=break_lines)
+            print("Saved TXT to", os.path.abspath(txt_path))
         else:
             print(f"subtitle type {subtitles_format} is wrong")
             exit(-1)
@@ -89,18 +97,22 @@ def get_audio(urls):
     paths = {}
     for url in urls:
         if url.startswith('https://') or url.startswith("http://"):
+            start = time.time()
             result = ydl.extract_info(url, download=True)
             print(
-                f"Downloaded video \"{result['title']}\". Generating subtitles..."
+                f"Downloaded audio only \"{result['title']}\" \
+                    in {time.time() - start}. Generating subtitles..."
             )
             paths[result["title"]] = os.path.join(
                 temp_dir, f"{result['id']}.mp3")
+            print(f"audio saved to {paths[result['title']]}")
+
         elif os.path.exists(url):
             print(f"local file {url}")
             output_mp3 = convert_video_to_audio_ffmpeg(url)
             paths[os.path.splitext(os.path.basename(url))[0]] = output_mp3
             assert os.path.exists(output_mp3)
-            print(output_mp3)
+            print(f"audio saved to {output_mp3}")
         else:
             print(f"url not exist {url}")
     return paths

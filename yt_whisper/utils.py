@@ -12,7 +12,9 @@ def str2bool(string):
             f"Expected one of {set(str2val.keys())}, got {string}")
 
 
-def format_timestamp(seconds: float, always_include_hours: bool = False, decimal_marker: str = '.'):
+def format_timestamp(
+        seconds: float, always_include_hours: bool = False,
+        decimal_marker: str = '.'):
     assert seconds >= 0, "non-negative timestamp expected"
     milliseconds = round(seconds * 1000.0)
 
@@ -78,6 +80,20 @@ def write_srt(transcript: Iterator[dict], file: TextIO, line_length: int = 0):
             f"{format_timestamp(segment['start'], always_include_hours=True, decimal_marker=',')} --> "
             f"{format_timestamp(segment['end'], always_include_hours=True, decimal_marker=',')}\n"
             f"{segment['text'].strip().replace('-->', '->')}\n",
+            file=file,
+            flush=True,
+        )
+
+
+def write_txt(transcript: Iterator[dict], file: TextIO, line_length: int = 0):
+    """
+    Writes transcript to a text file. Save only the text, not the timestamps.
+    """
+    for _, segment in enumerate(transcript, start=1):
+        segment = process_segment(segment, line_length=line_length)
+
+        print(
+            f"{segment['text'].strip().replace('-->', '->')}",
             file=file,
             flush=True,
         )

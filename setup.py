@@ -11,5 +11,8 @@ setup(
         'openai-whisper'
     ],
     description="Generate subtitles for YouTube videos using Whisper",
+    entry_points={
+        'console_scripts': ['yt_whisper=yt_whisper.cli:main'],
+    },
     include_package_data=True,
 )
