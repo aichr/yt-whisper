@@ -1,2 +1,2 @@
 yt-dlp
-git+https://github.com/openai/whisper.git
+openai-whisper

@@ -14,20 +14,28 @@ def main():
     parser.add_argument("video", nargs="+", type=str,
                         help="video URLs to transcribe")
     parser.add_argument("--model", default="small",
-                        choices=whisper.available_models(), help="name of the Whisper model to use")
-    parser.add_argument("--format", default="srt",
-                        choices=["vtt", "srt"], help="the subtitle format to output")
+                        choices=whisper.available_models(),
+                        help="name of the Whisper model to use")
+    parser.add_argument(
+        "--format", default="srt", choices=["vtt", "srt"],
+        help="the subtitle format to output")
     parser.add_argument("--output_dir", "-o", type=str,
                         default=".", help="directory to save the outputs")
-    parser.add_argument("--verbose", type=str2bool, default=False,
-                        help="Whether to print out the progress and debug messages")
-    parser.add_argument("--task", type=str, default="transcribe", choices=[
-                        "transcribe", "translate"], help="whether to perform X->X speech recognition ('transcribe') or X->English translation ('translate')")
-    parser.add_argument("--language", type=str, default=None, choices=sorted(LANGUAGES.keys()) + sorted([k.title() for k in TO_LANGUAGE_CODE.keys()]),
+    parser.add_argument(
+        "--verbose", type=str2bool, default=False,
+        help="Whether to print out the progress and debug messages")
+    parser.add_argument(
+        "--task", type=str, default="transcribe",
+        choices=["transcribe", "translate"],
+        help="whether to perform X->X speech recognition ('transcribe') or X->English translation ('translate')")
+    parser.add_argument("--language", type=str, default=None,
+                        choices=sorted(LANGUAGES.keys()) +
+                        sorted([k.title() for k in TO_LANGUAGE_CODE.keys()]),
                         help="language spoken in the audio, skip to perform language detection")
 
-    parser.add_argument("--break-lines", type=int, default=0,
-                        help="Whether to break lines into a bottom-heavy pyramid shape if line length exceeds N characters. 0 disables line breaking.")
+    parser.add_argument(
+        "--break-lines", type=int, default=0,
+        help="Whether to break lines into a bottom-heavy pyramid shape if line length exceeds N characters. 0 disables line breaking.")
 
     args = parser.parse_args().__dict__
     model_name: str = args.pop("model")
